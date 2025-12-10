@@ -2,6 +2,9 @@
 
 **Real-Time 3D Sound Source Localization with Visual Tracking and Scene Understanding**
 
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/719c1778-330d-46fb-be8d-ca2623d8ef7a" />
+
+
 A production-grade multi-modal sensing platform that fuses acoustic and visual data for comprehensive spatial awareness. Built for meeting analytics, security monitoring, smart spaces, and industrial IoT applications.
 
 ---
