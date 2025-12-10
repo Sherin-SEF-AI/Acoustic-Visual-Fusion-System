@@ -21,6 +21,52 @@ The Acoustic-Visual Fusion System combines microphone array processing with mult
 - **Zone Management**: 3D spatial zone definition with occupancy alerts
 - **Network Streaming**: HTTP MJPEG video streams and JSON API endpoints
 
+### System Flow Diagram
+
+```
+                    INPUT LAYER
+    ┌─────────────────────┬─────────────────────┐
+    │   CAMERA ARRAY      │   MICROPHONE ARRAY  │
+    │   (4 USB Cameras)   │   (8 Channel Array) │
+    └─────────┬───────────┴──────────┬──────────┘
+              │                      │
+              ▼                      ▼
+    ┌─────────────────────┐ ┌─────────────────────┐
+    │   VIDEO PIPELINE    │ │   AUDIO PIPELINE    │
+    │                     │ │                     │
+    │  Frame Capture      │ │  Multi-Ch Capture   │
+    │       ▼             │ │       ▼             │
+    │  YOLO Detection     │ │  GCC-PHAT Beamform  │
+    │       ▼             │ │       ▼             │
+    │  DeepSORT Tracking  │ │  3D Localization    │
+    │       ▼             │ │       ▼             │
+    │  Pose Estimation    │ │  Speech Detection   │
+    └─────────┬───────────┘ └──────────┬──────────┘
+              │                        │
+              └───────────┬────────────┘
+                          ▼
+            ┌─────────────────────────────┐
+            │    AUDIO-VISUAL FUSION      │
+            │                             │
+            │  - Spatial Correlation      │
+            │  - Temporal Matching        │
+            │  - Speaker Attribution      │
+            └──────────────┬──────────────┘
+                           ▼
+            ┌─────────────────────────────┐
+            │     MEETING ANALYTICS       │
+            │                             │
+            │  Talk-Time │ Interruptions  │
+            │  Sentiment │ Turn-Taking    │
+            └──────────────┬──────────────┘
+                           ▼
+                    OUTPUT LAYER
+    ┌─────────────────────┬─────────────────────┐
+    │   PyQt6 GUI         │   HTTP API          │
+    │   Dashboard         │   Streaming         │
+    └─────────────────────┴─────────────────────┘
+```
+
 ---
 
 ## Architecture
