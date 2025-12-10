@@ -1,0 +1,291 @@
+# Acoustic-Visual Fusion System Configuration
+# =============================================
+
+system:
+  name: "AV-Fusion"
+  version: "1.0.0"
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  data_dir: "./data"
+  models_dir: "./models"
+
+# Hardware Configuration
+hardware:
+  cameras:
+    count: 4
+    default_resolution: [1280, 720]
+    default_fps: 30
+    auto_discover: true
+    devices: []  # Will be populated by hardware discovery
+    
+  microphones:
+    count: 4
+    sample_rate: 48000
+    channels_per_device: 1
+    buffer_duration_sec: 5.0
+    auto_discover: true
+    devices: []  # Will be populated by hardware discovery
+    # Physical positions in meters (x, y, z) - to be calibrated
+    positions: []
+
+# Calibration Settings
+calibration:
+  camera:
+    checkerboard_size: [9, 6]
+    square_size_mm: 25.0
+    min_samples: 20
+    save_path: "./data/calibration/cameras"
+    
+  microphone:
+    speed_of_sound: 343.0  # m/s at 20°C
+    temperature_celsius: 20.0
+    calibration_chirp_freq: [500, 8000]  # Hz range
+    save_path: "./data/calibration/microphones"
+
+# Audio Processing Pipeline
+audio:
+  capture:
+    sample_rate: 48000
+    chunk_size: 1024
+    buffer_seconds: 5.0
+    
+  event_detection:
+    model: "ast"  # Audio Spectrogram Transformer
+    confidence_threshold: 0.5
+    min_event_duration_ms: 100
+    classes:
+      - speech
+      - glass_breaking
+      - door
+      - footsteps
+      - alarm
+      - applause
+      - mechanical
+      - music
+      
+  localization:
+    algorithm: "gcc-phat"  # gcc-phat, srp-phat, music
+    fft_size: 4096
+    hop_size: 512
+    max_source_distance: 10.0  # meters
+    uncertainty_threshold: 0.5  # meters
+    
+  beamforming:
+    algorithm: "delay-sum"  # delay-sum, mvdr
+    beam_resolution_deg: 5
+    
+  tracking:
+    algorithm: "kalman"  # kalman, particle
+    max_sources: 5
+    birth_threshold: 0.7
+    death_threshold: 0.3
+    process_noise: 0.1
+    measurement_noise: 0.2
+
+# Video Processing Pipeline
+video:
+  capture:
+    resolution: [1280, 720]
+    fps: 30
+    sync_tolerance_ms: 33  # ~1 frame at 30fps
+    
+  detection:
+    model: "yolov8m"  # yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
+    confidence_threshold: 0.5
+    nms_threshold: 0.4
+    classes:
+      - person
+      - face
+      
+  tracking:
+    algorithm: "bytetrack"  # bytetrack, botsort
+    track_high_thresh: 0.5
+    track_low_thresh: 0.1
+    new_track_thresh: 0.6
+    track_buffer: 30  # frames
+    match_thresh: 0.8
+    
+  pose:
+    enabled: true
+    model: "mediapipe"  # mediapipe, rtmpose
+    min_detection_confidence: 0.5
+    min_tracking_confidence: 0.5
+    
+  face_analysis:
+    enabled: true
+    detect_landmarks: true
+    detect_head_pose: true
+    detect_lip_movement: true
+    
+  cross_camera:
+    enabled: true
+    reid_model: "osnet_x1_0"
+    appearance_weight: 0.7
+    spatial_weight: 0.3
+    match_threshold: 0.6
+    
+  depth:
+    enabled: false
+    model: "depth_anything_v2"  # depth_anything_v2, midas
+    
+  activity:
+    speaking_threshold: 0.5
+    gesture_detection: true
+
+# Fusion Configuration
+fusion:
+  enabled: true
+  model_path: "./models/fusion_model.pt"
+  
+  temporal:
+    window_ms: 100
+    max_delay_ms: 500
+    
+  spatial:
+    max_distance_m: 2.0
+    confidence_decay: 0.5
+    
+  association:
+    min_confidence: 0.6
+    use_contrastive: true
+    
+# Correlation Engine
+correlation:
+  speaker_diarization:
+    enabled: true
+    voice_embedding_model: "ecapa_tdnn"
+    face_embedding_model: "arcface"
+    
+  anomaly_detection:
+    enabled: true
+    baseline_duration_sec: 300
+    threshold_sigma: 3.0
+    
+  attention_tracking:
+    enabled: true
+    gaze_model: "mediapipe"
+
+# Visualization
+visualization:
+  scene_3d:
+    enabled: true
+    camera_frustum_length: 1.0
+    sound_sphere_duration: 1.0
+    update_rate_hz: 30
+    
+  floorplan:
+    enabled: true
+    width_m: 10.0
+    height_m: 10.0
+    grid_size: 0.5
+    heatmap_decay: 0.95
+    
+  overlays:
+    show_bounding_boxes: true
+    show_track_ids: true
+    show_pose: true
+    show_face_landmarks: false
+    show_speaking_indicator: true
+    show_audio_direction: true
+
+# Dashboard and API
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["*"]
+  
+  websocket:
+    enabled: true
+    ping_interval: 30
+    
+  auth:
+    enabled: false
+    api_key: ""
+
+# Database
+database:
+  type: "sqlite"  # sqlite, postgresql
+  sqlite:
+    path: "./data/avfusion.db"
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "avfusion"
+    user: "avfusion"
+    password: ""
+    
+  retention:
+    tracks_days: 7
+    events_days: 30
+    recordings_days: 3
+
+# Recording
+recording:
+  audio:
+    enabled: true
+    format: "opus"  # opus, aac, wav
+    bitrate: 64000
+    chunk_duration_sec: 60
+    
+  video:
+    enabled: true
+    codec: "h264"  # h264, h265
+    quality: 23  # CRF value
+    chunk_duration_sec: 60
+    
+  evidence:
+    pre_roll_sec: 10
+    post_roll_sec: 10
+    save_path: "./data/evidence"
+
+# Alerts
+alerts:
+  enabled: true
+  
+  rules:
+    - name: "glass_breaking"
+      audio_event: "glass_breaking"
+      confidence: 0.8
+      severity: "critical"
+      
+    - name: "shouting"
+      audio_event: "speech"
+      audio_intensity_db: 80
+      severity: "warning"
+      
+    - name: "intrusion"
+      visual_event: "person_in_zone"
+      zones: ["restricted"]
+      severity: "critical"
+      
+  notifications:
+    webhook:
+      enabled: false
+      url: ""
+    email:
+      enabled: false
+      smtp_host: ""
+      smtp_port: 587
+      recipients: []
+
+# Performance
+performance:
+  target_latency_ms: 100
+  gpu_enabled: true
+  gpu_device: 0
+  batch_size: 1
+  num_workers: 4
+  queue_size: 10
+
+# Accessibility
+accessibility:
+  captions:
+    enabled: true
+    language: "en"
+    model: "whisper-small"
+    
+  sound_radar:
+    enabled: true
+    update_rate_hz: 10
+    
+  haptic_alerts:
+    enabled: false

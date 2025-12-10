@@ -1,0 +1,63 @@
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+pyyaml>=6.0
+
+# Video processing
+opencv-python>=4.8.0
+opencv-contrib-python>=4.8.0
+
+# Audio processing
+pyaudio>=0.2.13
+sounddevice>=0.4.6
+librosa>=0.10.0
+pyroomacoustics>=0.7.0
+
+# Deep learning
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Object detection and tracking
+ultralytics>=8.0.0  # YOLOv8
+supervision>=0.16.0  # ByteTrack and utilities
+
+# Pose estimation and face analysis
+mediapipe>=0.10.0
+insightface>=0.7.3
+
+# Audio classification
+transformers>=4.30.0  # For audio models
+
+# API and dashboard
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+websockets>=11.0
+python-multipart>=0.0.6
+aiofiles>=23.1.0
+
+# GUI
+PyQt6>=6.5.0
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+
+# Utilities
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+loguru>=0.7.0
+rich>=13.0.0
+tqdm>=4.65.0
+
+# 3D visualization
+open3d>=0.17.0
+plotly>=5.15.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Recording and compression
+av>=10.0.0  # FFmpeg bindings
